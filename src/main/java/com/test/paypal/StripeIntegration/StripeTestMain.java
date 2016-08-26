@@ -13,13 +13,18 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
 import com.stripe.model.Plan;
+import com.stripe.model.Token;
 import com.stripe.net.RequestOptions;
 import com.stripe.net.RequestOptions.RequestOptionsBuilder;
 
 public class StripeTestMain {
 	public static void main(String[] args) {
 		StripeTestMain stripeTestMain = new StripeTestMain();
+//		stripeTestMain.createSubscriptionPlan();
+//		stripeTestMain.makeCharge();
+//		stripeTestMain.createToken();
 		stripeTestMain.createSubscriptionPlan();
+		stripeTestMain.assignToCustomer();
 	}
 
 	private void makeCharge() {
@@ -62,10 +67,10 @@ public class StripeTestMain {
 
 		Map<String, Object> planParams = new HashMap<String, Object>();
 		planParams.put("amount", 9000);
-		planParams.put("interval", "day");
+		planParams.put("interval", "month");
 		planParams.put("name", "First plan. Better than paypal");
 		planParams.put("currency", "usd");
-		planParams.put("id", "gold");
+		planParams.put("id", "gold2");
 
 		try {
 			Plan plan = Plan.create(planParams);
@@ -94,14 +99,74 @@ public class StripeTestMain {
 		// See your keys here: https://dashboard.stripe.com/account/apikeys
 		Stripe.apiKey = "sk_test_Xnqmv0DtbQLd6f8QEPxLvsXv";
 
+		Token token  = createToken();
+		
 		// Get the credit card details submitted by the form
-		String token = request.getParameter("stripeToken");
+		String tokenStr = token.getId();
 
 		Map<String, Object> customerParams = new HashMap<String, Object>();
-		customerParams.put("source", token);
-		customerParams.put("plan", "gold");
-		customerParams.put("email", "payinguser@example.com");
+		customerParams.put("source", tokenStr);
+		customerParams.put("plan", "gold2");
+		customerParams.put("email", "pranish.stha04@gmail.com");
+		
 
-		Customer.create(customerParams);
+		try {
+			Customer customer  = Customer.create(customerParams);
+			System.out.println("Customer  : "  + customer);
+			System.out.println("----------------");
+		} catch (AuthenticationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidRequestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (APIConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CardException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (APIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private Token createToken(){
+		
+		System.out.println("Crete token");
+		
+		Token token = new Token();
+		Stripe.apiKey = "sk_test_Xnqmv0DtbQLd6f8QEPxLvsXv";
+
+		Map<String, Object> tokenParams = new HashMap<String, Object>();
+		Map<String, Object> cardParams = new HashMap<String, Object>();
+		cardParams.put("number", "4242424242424242");
+		cardParams.put("exp_month", 8);
+		cardParams.put("exp_year", 2017);
+		cardParams.put("cvc", "314");
+		tokenParams.put("card", cardParams);
+
+		try {
+			token =  Token.create(tokenParams);
+			System.out.println(token);
+		} catch (AuthenticationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidRequestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (APIConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CardException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (APIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return token;
 	}
 }
