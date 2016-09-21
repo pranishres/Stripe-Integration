@@ -19,7 +19,12 @@ import com.stripe.model.Token;
 import com.stripe.net.RequestOptions;
 import com.stripe.net.RequestOptions.RequestOptionsBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class StripeTestMain {
+
+	private Logger LOGGER = LoggerFactory.getLogger(this.getClass().getName());
 
 	String apiKey = "sk_test_Xnqmv0DtbQLd6f8QEPxLvsXv";
 
@@ -61,12 +66,9 @@ public class StripeTestMain {
 
 		// stripeTestMain.assignToCustomer(stripeTestMain.createSubscriptionPlan(null));
 
-//		 stripeTestMain.createToken();
-		
-		stripeTestMain.addCards();
-		
-//		stripeTestMain.retriveCustomerAndCreatePlan();
-//		stripeTestMain.updateExistingsSubscription();
+		stripeTestMain.createToken();
+
+		// stripeTestMain.retriveCustomer("cus_99fg6DfuZ2cJVp");
 	}
 
 	private void createCustomer() {
@@ -78,10 +80,15 @@ public class StripeTestMain {
 
 		Customer customer = new Customer();
 		try {
+
 			customer = Customer.create(customerParams);
-			System.out.println("Customer : " + customer);
+			LOGGER.debug("Customer : ", customer);
+
 		} catch (Exception e) {
-			System.out.println();
+
+			LOGGER.error("Error while creating customer : ", customer);
+			LOGGER.debug("createCustomer().e", e);
+
 		}
 	}
 
@@ -91,66 +98,88 @@ public class StripeTestMain {
 	private void setDefaultCard() {
 
 		Customer customer = retriveCustomer("cus_96JpIXIQBUJhCL");
-		System.out.println("Customer : " + customer);
-		System.out.println("Sources : " + customer.getSources());
-		System.out.println("Default sources : " + customer.getDefaultSource());
+
+		LOGGER.debug("Customer : ", customer);
+		LOGGER.debug("Sources : ", customer.getSources());
+		LOGGER.debug("Default sources : ", customer.getDefaultSource());
 
 		customer.setDefaultSource("card_18o7E5ElSMaq70BZWN9oHqIb");
-		System.out.println("Updated Customer: " + customer);
+
+		LOGGER.debug("Updated Customer: ", customer);
 
 	}
 
+	@SuppressWarnings("deprecation")
 	private Customer retriveCustomer(String customerId) {
 		Customer customer = new Customer();
 		try {
 			customer = Customer.retrieve(customerId, apiKey);
+			System.out.println("Retrived Customer : " + customer);
 		} catch (AuthenticationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.setDefaultCard() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.setDefaultCard() --> ", e);
+
 		} catch (APIConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.setDefaultCard() --> ", e);
+
 		} catch (CardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("CardException --> StripeTestMain.setDefaultCard() --> ", e);
+
 		} catch (APIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIException --> StripeTestMain.setDefaultCard() --> ", e);
+
 		}
 
 		return customer;
 	}
 
+	/**
+	 * Adding a new card to an existing customer
+	 */
+	@SuppressWarnings("deprecation")
 	private void addCards() {
+
 		try {
-			Customer customer = Customer.retrieve("cus_96JpIXIQBUJhCL", apiKey);
+
+			String CUSTOMER_ID = "cus_96JpIXIQBUJhCL";
+
+			Customer customer = Customer.retrieve(CUSTOMER_ID, apiKey);
 
 			Map<String, Object> customerParams = new HashMap<String, Object>();
 			customerParams.put("source", createToken().getId());
 
-			ExternalAccount updatedCustomer =  customer.getSources().create(customerParams);
+			ExternalAccount updatedCustomer = customer.getSources().create(customerParams);
 
-			System.out.println("Customer :  " + customer);
-			System.out.println("Updated customer after adding card : " + updatedCustomer);
+			LOGGER.debug("Customer :  ", customer);
+			LOGGER.debug("Updated customer after adding card : ", updatedCustomer);
 
 		} catch (AuthenticationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (APIConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (CardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("CardException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (APIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIException --> StripeTestMain.addCards() --> ", e);
+
 		}
 
 	}
@@ -176,30 +205,35 @@ public class StripeTestMain {
 				Customer customer2 = Customer.retrieve(customer.getId());
 				customer2.update(customerParams2);
 			} catch (Exception e) {
-				System.out.println("Error while retriving customer and creating plan : " + e.getMessage());
+				LOGGER.debug("Error while retriving customer and creating plan : " + e.getMessage());
 
 			}
 
 		} catch (AuthenticationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (APIConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (CardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("CardException --> StripeTestMain.addCards() --> ", e);
+
 		} catch (APIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIException --> StripeTestMain.addCards() --> ", e);
+
 		}
 
 	}
 
-	private void creteCustomerAndPay() {
+	private void createCustomerAndPay() {
 		/* Creating a token */
 		Token token = createToken();
 
@@ -212,7 +246,7 @@ public class StripeTestMain {
 
 		try {
 			Customer customer = Customer.create(customerParams);
-			System.out.println("Customer created : " + customer);
+			LOGGER.debug("Customer created : ", customer);
 
 			Map<String, Object> chargeMap = new HashMap<String, Object>();
 			chargeMap.put("amount", 2150);
@@ -226,18 +260,18 @@ public class StripeTestMain {
 			Charge createdCharge = new Charge();
 			try {
 				createdCharge = Charge.create(chargeMap, requestOptions);
-				System.out.println("Payment successfull : ");
-				System.out.println(createdCharge);
+				LOGGER.debug("Payment successfull : ", createdCharge);
 
 			} catch (StripeException e) {
-				System.out.println("Error while making payment using customer Id : " + e.getMessage());
+
+				LOGGER.debug("StripeTestMain.createCustomerAndPay()", e);
+
 			}
 
 			/*
-			 * try{ Plan plan = createSubscriptionPlan(null);
-			 * System.out.println("******* Assign plan to customer **********");
-			 * // Set your secret key: remember to change this to your live
-			 * secret key // in production // See your keys here:
+			 * try{ Plan plan = createSubscriptionPlan(null); // Set your secret
+			 * key: remember to change this to your live secret key // in
+			 * production // See your keys here:
 			 * https://dashboard.stripe.com/account/apikeys Stripe.apiKey =
 			 * apiKey;
 			 * 
@@ -268,7 +302,9 @@ public class StripeTestMain {
 			 */
 
 		} catch (Exception e) {
-			System.out.println("Error while creating customer : " + e.getMessage());
+
+			LOGGER.debug("StripeTestMain.createCustomerAndPay()", e);
+
 		}
 
 	}
@@ -276,8 +312,8 @@ public class StripeTestMain {
 	/**
 	 * Make 1 time payment
 	 */
+	@SuppressWarnings("deprecation")
 	private Charge makeCharge() {
-		System.out.println("********* Make payment *********");
 
 		RequestOptions requestOptions = (new RequestOptionsBuilder()).setApiKey(apiKey).build();
 		Map<String, Object> chargeMap = new HashMap<String, Object>();
@@ -285,12 +321,10 @@ public class StripeTestMain {
 		chargeMap.put("currency", "usd");
 
 		// Making payment using credit card
-
 		Map<String, Object> cardMap = new HashMap<String, Object>();
 		cardMap.put("number", "4242424242424242");
 		cardMap.put("exp_month", 12);
 		cardMap.put("exp_year", 2020);
-
 		chargeMap.put("card", cardMap);
 
 		/* Making payment using customer id */
@@ -305,11 +339,12 @@ public class StripeTestMain {
 		try {
 			createdCharge = Charge.create(chargeMap, requestOptions);
 
-			System.out.println("Payment successfull : ");
-			System.out.println(createdCharge);
-			System.out.println("Card : " + createdCharge.getCard());
+			LOGGER.debug("Payment successfull : ");
+			LOGGER.debug("Created charge : ", createdCharge);
+			LOGGER.debug("Card : " + createdCharge.getCard());
 
 		} catch (StripeException e) {
+
 			System.out.println("Error while using customer id for payment : " + e.getMessage());
 		}
 
@@ -320,26 +355,29 @@ public class StripeTestMain {
 	 * Retrive a charge detail
 	 */
 	private void retriveChargeDetails(String chargeId) {
-		System.out.println("************Retrive Charge Details********************");
-		System.out.println("Charge details of : " + chargeId);
 		try {
 			Stripe.apiKey = apiKey;
-			System.out.println(Charge.retrieve(chargeId));
+			LOGGER.debug("Charge : ", Charge.retrieve(chargeId));
 		} catch (AuthenticationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.retriveChargeDetails() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.retriveChargeDetails() --> ", e);
+
 		} catch (APIConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.retriveChargeDetails() --> ", e);
+
 		} catch (CardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("CardException --> StripeTestMain.retriveChargeDetails() --> ", e);
+
 		} catch (APIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIException --> StripeTestMain.retriveChargeDetails() --> ", e);
+
 		}
 	}
 
@@ -349,9 +387,6 @@ public class StripeTestMain {
 	private Plan createSubscriptionPlan(Charge charge) {
 		System.out.println("********Create subscription plan**********");
 
-		// Set your secret key: remember to change this to your live secret key
-		// in production
-		// See your keys here: https://dashboard.stripe.com/account/apikeys
 		Stripe.apiKey = apiKey;
 
 		Map<String, Object> planParams = new HashMap<String, Object>();
@@ -366,24 +401,27 @@ public class StripeTestMain {
 
 		try {
 			plan = Plan.create(planParams);
-			System.out.println("Plan Created : " + plan);
+			LOGGER.debug("Plan Created : ", plan);
 		} catch (AuthenticationException e) {
 
-			System.out.println("Authentication Exception while creting plan : " + e.getMessage());
+			LOGGER.debug("AuthenticationException --> StripeTestMain.createSubscriptionPlan() --> ", e);
+
 		} catch (InvalidRequestException e) {
 
-			System.out.println("InvalidRequestException while creting plan : " + e.getMessage());
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.createSubscriptionPlan() --> ", e);
 
 		} catch (APIConnectionException e) {
 
-			System.out.println("ApiConnectionException while creating plan : " + e.getMessage());
+			LOGGER.debug("APIConnectionException --> StripeTestMain.createSubscriptionPlan() --> ", e);
+
 		} catch (CardException e) {
 
-			System.out.println("Card Exception while creating plan : " + e.getMessage());
+			LOGGER.debug("CardException --> StripeTestMain.createSubscriptionPlan() --> ", e);
 
 		} catch (APIException e) {
 
-			System.out.println("ApiExceotion while creting plan : " + e.getMessage());
+			LOGGER.debug("APIException --> StripeTestMain.createSubscriptionPlan() --> ", e);
+
 		}
 
 		return plan;
@@ -393,10 +431,6 @@ public class StripeTestMain {
 	 * Assign the created plan to customer
 	 */
 	private void assignToCustomer(Plan plan) {
-		System.out.println("******* Assign plan to customer **********");
-		// Set your secret key: remember to change this to your live secret key
-		// in production
-		// See your keys here: https://dashboard.stripe.com/account/apikeys
 		Stripe.apiKey = apiKey;
 
 		Token token = createToken();
@@ -413,15 +447,25 @@ public class StripeTestMain {
 			Customer customer = Customer.create(customerParams);
 			System.out.println("Customer for plan : " + customer);
 		} catch (AuthenticationException e) {
-			System.out.println("AuthenticationException while assigning plan: " + e.getMessage());
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.assignToCustomer() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			System.out.println("InvalidRequestException while assigning plan: " + e.getMessage());
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.assignToCustomer() --> ", e);
+
 		} catch (APIConnectionException e) {
-			System.out.println("APIConnectionException while assigning plan: " + e.getMessage());
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.assignToCustomer() --> ", e);
+
 		} catch (CardException e) {
-			System.out.println("CardException while assigning plan: " + e.getMessage());
+
+			LOGGER.debug("CardException --> StripeTestMain.assignToCustomer() --> ", e);
+
 		} catch (APIException e) {
-			System.out.println("APIException while assigning plan: " + e.getMessage());
+
+			LOGGER.debug("APIException --> StripeTestMain.assignToCustomer() --> ", e);
+
 		}
 	}
 
@@ -429,8 +473,6 @@ public class StripeTestMain {
 	 * Create card token
 	 */
 	private Token createToken() {
-
-		System.out.println("Crete token");
 
 		Token token = new Token();
 		Stripe.apiKey = apiKey;
@@ -443,7 +485,6 @@ public class StripeTestMain {
 		cardParams.put("cvc", "314");
 		cardParams.put("address_city", "Kathmandu");
 		cardParams.put("address_country", "NP");
-		// cardParams.put("brand", "")
 		cardParams.put("name", "name");
 		cardParams.put("address_zip", 1111);
 		cardParams.put("address_state", "BG");
@@ -455,17 +496,27 @@ public class StripeTestMain {
 
 		try {
 			token = Token.create(tokenParams);
-			System.out.println(token);
+			LOGGER.debug(" Token " + token);
 		} catch (AuthenticationException e) {
-			System.out.println("AuthenticationException while creating token :  " + e.getMessage());
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.createToken() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			System.out.println("InvalidRequestException while creating token :  " + e.getMessage());
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.createToken() --> ", e);
+
 		} catch (APIConnectionException e) {
-			System.out.println("APIConnectionException while creating token :  " + e.getMessage());
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.createToken() --> ", e);
+
 		} catch (CardException e) {
-			System.out.println("CardException while creating token :  " + e.getMessage());
+
+			LOGGER.debug("CardException --> StripeTestMain.createToken() --> ", e);
+
 		} catch (APIException e) {
-			System.out.println("APIException while creating token :  " + e.getMessage());
+
+			LOGGER.debug("APIException --> StripeTestMain.createToken() --> ", e);
+
 		}
 
 		return token;
@@ -487,23 +538,34 @@ public class StripeTestMain {
 
 			Subscription updatedSubscription = subscription.update(updateParams);
 
-			System.out.println("Updated Subscription : " + updatedSubscription);
+			LOGGER.debug("Updated Subscription : ", updatedSubscription);
 
 		} catch (AuthenticationException e) {
-			System.out.println("AuthenticationException while cancelling subscription : " + e.getMessage());
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.updateExistingsSubscription() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			System.out.println("InvalidRequestException while cancelling subscription : " + e.getMessage());
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.updateExistingsSubscription() --> ", e);
+
 		} catch (APIConnectionException e) {
-			System.out.println("APIConnectionException while cancelling subscription : " + e.getMessage());
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.updateExistingsSubscription() --> ", e);
+
 		} catch (CardException e) {
-			System.out.println("CardException while cancelling subscription : " + e.getMessage());
+
+			LOGGER.debug("CardException --> StripeTestMain.updateExistingsSubscription() --> ", e);
+
 		} catch (APIException e) {
-			System.out.println("APIException while cancelling subscription : " + e.getMessage());
+
+			LOGGER.debug("APIException --> StripeTestMain.updateExistingsSubscription() --> ", e);
+
 		}
 
 		return subscription;
 	}
 
+	@SuppressWarnings("deprecation")
 	private void getCardDetails() {
 		Stripe.apiKey = apiKey;
 
@@ -519,22 +581,27 @@ public class StripeTestMain {
 			System.out.println("Customer : " + customer);
 
 			String card = customer.getDefaultCard();
-			System.out.println("Card : " + customer.getCards());
+			LOGGER.debug("Card : ", customer.getCards());
 		} catch (AuthenticationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.getCardDetails() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.getCardDetails() --> ", e);
+
 		} catch (APIConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.getCardDetails() --> ", e);
+
 		} catch (CardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("CardException --> StripeTestMain.getCardDetails() --> ", e);
+
 		} catch (APIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIException --> StripeTestMain.getCardDetails() --> ", e);
+
 		}
 
 	}
@@ -544,28 +611,32 @@ public class StripeTestMain {
 		try {
 			Stripe.apiKey = apiKey;
 			Subscription retrivedSubscription = subscription.retrieve("sub_95vhEt4tCxp8tQ");
-			System.out.println("Retrived subscription :   " + retrivedSubscription);
+			LOGGER.debug("Retrived subscription :   ", retrivedSubscription);
 		} catch (AuthenticationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.retriveSubscription() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.retriveSubscription() --> ", e);
+
 		} catch (APIConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.retriveSubscription() --> ", e);
+
 		} catch (CardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("CardException --> StripeTestMain.retriveSubscription() --> ", e);
+
 		} catch (APIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			LOGGER.debug("APIException --> StripeTestMain.retriveSubscription() --> ", e);
+
 		}
 
 	}
 
 	private void cancelExistingsSubscription() {
-		System.out.println("******** Cancelling Subscription **********");
 
 		Stripe.apiKey = apiKey;
 
@@ -574,15 +645,25 @@ public class StripeTestMain {
 			Subscription cancelledSubscription = subscription.cancel(null);
 			System.out.println("Cancelled Subscription : " + cancelledSubscription);
 		} catch (AuthenticationException e) {
-			System.out.println("AuthenticationException while cancelling subscription");
+
+			LOGGER.debug("AuthenticationException --> StripeTestMain.cancelExistingsSubscription() --> ", e);
+
 		} catch (InvalidRequestException e) {
-			System.out.println("InvalidRequestException while cancelling subscription");
+
+			LOGGER.debug("InvalidRequestException --> StripeTestMain.cancelExistingsSubscription() --> ", e);
+
 		} catch (APIConnectionException e) {
-			System.out.println("APIConnectionException while cancelling subscription");
+
+			LOGGER.debug("APIConnectionException --> StripeTestMain.cancelExistingsSubscription() --> ", e);
+
 		} catch (CardException e) {
-			System.out.println("CardException while cancelling subscription");
+
+			LOGGER.debug("CardException --> StripeTestMain.cancelExistingsSubscription() --> ", e);
+
 		} catch (APIException e) {
-			System.out.println("APIException while cancelling subscription");
+
+			LOGGER.debug("APIException --> StripeTestMain.cancelExistingsSubscription() --> ", e);
+
 		}
 
 	}
